@@ -1,6 +1,6 @@
 <?php
 // db_connect.php
-$host     = "localhost";
+$host     = getenv('DB_HOST') ?: "localhost";
 $dbname   = "OnlineLearningPlatform";
 $username = "root";          // Change to your MySQL username if necessary
 $password = "";              // Change to your MySQL password if necessary

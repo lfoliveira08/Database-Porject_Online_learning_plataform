@@ -1,0 +1,32 @@
+# IDEs and Text Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Docker
+.docker/
+
+# Vendor packages (if added later)
+vendor/
+node_modules/
+
+# Ignore sensitive database exports
+# (excluding our intended schema in database/)
+*.sql.gz
+*backup*.sql
