@@ -6,7 +6,7 @@ $message_type = '';
 
 try {
     $students = $conn->query("SELECT student_id, CONCAT(first_name, ' ', last_name) AS full_name FROM Students ORDER BY first_name")->fetchAll(PDO::FETCH_ASSOC);
-    $assignments = $conn->query("SELECT assignment_id, title FROM Assignments ORDER BY title")->fetchAll(PDO::FETCH_ASSOC);
+    $assignments = $conn->query("SELECT a.assignment_id, c.course_name AS title FROM Assignments a JOIN Courses c ON a.course_id = c.course_id ORDER BY c.course_name")->fetchAll(PDO::FETCH_ASSOC);
 } catch(PDOException $e) {
     die("Error fetching data: " . $e->getMessage());
 }
