@@ -5,9 +5,9 @@ TechLearn is a comprehensive online learning platform focused exclusively on tec
 This repository serves as a fully functional web-application connecting a responsive UI frontend (HTML/CSS/PHP) to a robust relational database backend (MySQL).
 
 ## Team Members & Roles
-- **Team Member 1**: Project Manager / Lead Developer
-- **Team Member 2**: Database Architect
-- **Team Member 3**: UX/UI Designer
+- **@lfoliveira08**: Project Planning & Management
+- **@SeaDog410**: PHP Development
+- **@jonhalb**: Database Modeling
 
 ## Folder Structure
 ```
