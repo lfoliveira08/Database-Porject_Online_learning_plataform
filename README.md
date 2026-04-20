@@ -5,6 +5,7 @@ TechLearn is a comprehensive online learning platform focused exclusively on tec
 ---
 
 ## 🔗 Quick Links
+- **Local Server View:** [http://localhost:8000/reports.php](http://localhost:8000/reports.php) *(If PHP server is active)*
 - **Manage Tasks:** [Project Workspace Board](https://github.com/users/lfoliveira08/projects/11)
 - **Official Documentation:** [Project Wiki Page](https://github.com/lfoliveira08/Database-Porject_Online_learning_plataform/wiki)
 
