@@ -4,6 +4,11 @@ TechLearn is a comprehensive online learning platform focused exclusively on tec
 
 ---
 
+## 🔗 Quick Links
+- **Manage Tasks:** [Project Workspace Board](https://github.com/users/lfoliveira08/projects/11)
+- **Official Documentation:** [Project Wiki Page](https://github.com/lfoliveira08/Database-Porject_Online_learning_plataform/wiki)
+
+---
 ## 📈 Project Status
 
 The project is currently under active development.
