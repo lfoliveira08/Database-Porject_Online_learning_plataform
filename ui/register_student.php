@@ -16,6 +16,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($firstName) || empty($lastName) || empty($email)) {
         $message = "Please fill in all required fields.";
         $message_type = "error";
+    } elseif (!preg_match('/@student\.com$/', $email)) {
+        $message = "Email must use the @student.com domain (e.g. john.smith@student.com).";
+        $message_type = "error";
     } else {
         try {
             // Check for duplicate email
@@ -78,7 +81,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
                 <div class="form-group">
                     <label>Email Address *</label>
-                    <input type="email" name="email" required>
+                    <input type="email" name="email"
+                           placeholder="firstname.lastname@student.com"
+                           pattern="[^@]+@student\.com"
+                           title="Email must use the @student.com domain (e.g. john.smith@student.com)"
+                           required>
+                    <small style="color:var(--text-muted);font-size:0.82rem;">Format: firstname.lastname@student.com</small>
                 </div>
                 <div class="form-group">
                     <label>Phone Number</label>
