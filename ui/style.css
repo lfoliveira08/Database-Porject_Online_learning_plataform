@@ -269,3 +269,38 @@ tbody tr:hover {
 .instructor-card strong {
     color: #a78bfa;
 }
+
+/* Small action buttons (Edit / Delete in tables) */
+.btn-sm {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    transition: all 0.2s ease;
+    width: auto;
+    box-shadow: none;
+    margin-right: 4px;
+    background: none;
+}
+.btn-edit {
+    background: rgba(79, 70, 229, 0.15);
+    color: #a78bfa;
+    border: 1px solid rgba(79, 70, 229, 0.3);
+}
+.btn-edit:hover {
+    background: rgba(79, 70, 229, 0.35);
+    transform: translateY(-1px);
+}
+.btn-delete {
+    background: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.btn-delete:hover {
+    background: rgba(239, 68, 68, 0.28);
+    transform: translateY(-1px);
+}

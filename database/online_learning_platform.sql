@@ -492,11 +492,179 @@ WHERE g.score >= 90;
 
 -- V5 - vw_revenue_by_category
 CREATE OR REPLACE VIEW vw_revenue_by_category AS
-SELECT 
-    cat.category_name, 
+SELECT
+    cat.category_name,
     COUNT(e.enrollment_id) AS total_enrollments,
     SUM(c.price) AS total_revenue
 FROM Categories cat
 JOIN Courses c ON cat.category_id = c.category_id
 JOIN Enrollments e ON c.course_id = e.course_id AND e.status != 'Dropped'
 GROUP BY cat.category_id;
+
+
+-- ==============================================================================
+-- SECTION 5: AUDIT LOG
+-- ==============================================================================
+
+CREATE TABLE audit_log (
+    log_id      INT AUTO_INCREMENT PRIMARY KEY,
+    action      VARCHAR(10)  NOT NULL,
+    table_name  VARCHAR(50)  NOT NULL,
+    record_id   INT,
+    summary     TEXT,
+    changed_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+);
+
+DELIMITER $$
+
+-- STUDENTS
+CREATE TRIGGER trg_students_insert AFTER INSERT ON Students FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('INSERT', 'Students', NEW.student_id,
+        CONCAT('Created: ', NEW.first_name, ' ', NEW.last_name, ' (', NEW.email, ')'));
+END$$
+
+CREATE TRIGGER trg_students_update AFTER UPDATE ON Students FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('UPDATE', 'Students', NEW.student_id,
+        CONCAT('Updated: ', NEW.first_name, ' ', NEW.last_name,
+               ' | email=', NEW.email,
+               ' | phone=', IFNULL(NEW.phone, 'N/A')));
+END$$
+
+CREATE TRIGGER trg_students_delete AFTER DELETE ON Students FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('DELETE', 'Students', OLD.student_id,
+        CONCAT('Deleted: ', OLD.first_name, ' ', OLD.last_name, ' (', OLD.email, ')'));
+END$$
+
+-- INSTRUCTORS
+CREATE TRIGGER trg_instructors_insert AFTER INSERT ON Instructors FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('INSERT', 'Instructors', NEW.instructor_id,
+        CONCAT('Created: ', NEW.first_name, ' ', NEW.last_name, ' | specialty=', IFNULL(NEW.specialty, 'N/A')));
+END$$
+
+CREATE TRIGGER trg_instructors_update AFTER UPDATE ON Instructors FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('UPDATE', 'Instructors', NEW.instructor_id,
+        CONCAT('Updated: ', NEW.first_name, ' ', NEW.last_name,
+               ' | specialty=', IFNULL(NEW.specialty, 'N/A'),
+               ' | email=', NEW.email));
+END$$
+
+CREATE TRIGGER trg_instructors_delete AFTER DELETE ON Instructors FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('DELETE', 'Instructors', OLD.instructor_id,
+        CONCAT('Deleted: ', OLD.first_name, ' ', OLD.last_name, ' (', OLD.email, ')'));
+END$$
+
+-- COURSES
+CREATE TRIGGER trg_courses_insert AFTER INSERT ON Courses FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('INSERT', 'Courses', NEW.course_id,
+        CONCAT('Created: ', NEW.course_name, ' | price=$', NEW.price));
+END$$
+
+CREATE TRIGGER trg_courses_update AFTER UPDATE ON Courses FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('UPDATE', 'Courses', NEW.course_id,
+        CONCAT('Updated: ', NEW.course_name,
+               ' | price=$', NEW.price,
+               ' | duration=', NEW.duration_hours, 'h'));
+END$$
+
+CREATE TRIGGER trg_courses_delete AFTER DELETE ON Courses FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('DELETE', 'Courses', OLD.course_id,
+        CONCAT('Deleted: ', OLD.course_name));
+END$$
+
+-- CATEGORIES
+CREATE TRIGGER trg_categories_insert AFTER INSERT ON Categories FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('INSERT', 'Categories', NEW.category_id,
+        CONCAT('Created: ', NEW.category_name));
+END$$
+
+CREATE TRIGGER trg_categories_update AFTER UPDATE ON Categories FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('UPDATE', 'Categories', NEW.category_id,
+        CONCAT('Updated: ', OLD.category_name, ' -> ', NEW.category_name));
+END$$
+
+CREATE TRIGGER trg_categories_delete AFTER DELETE ON Categories FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('DELETE', 'Categories', OLD.category_id,
+        CONCAT('Deleted: ', OLD.category_name));
+END$$
+
+-- ENROLLMENTS
+CREATE TRIGGER trg_enrollments_insert AFTER INSERT ON Enrollments FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('INSERT', 'Enrollments', NEW.enrollment_id,
+        CONCAT('Enrolled student_id=', NEW.student_id,
+               ' in course_id=', NEW.course_id,
+               ' | status=', NEW.status));
+END$$
+
+CREATE TRIGGER trg_enrollments_update AFTER UPDATE ON Enrollments FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('UPDATE', 'Enrollments', NEW.enrollment_id,
+        CONCAT('Updated enrollment_id=', NEW.enrollment_id,
+               ' | status: ', OLD.status, ' -> ', NEW.status));
+END$$
+
+CREATE TRIGGER trg_enrollments_delete AFTER DELETE ON Enrollments FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('DELETE', 'Enrollments', OLD.enrollment_id,
+        CONCAT('Removed: student_id=', OLD.student_id,
+               ' from course_id=', OLD.course_id,
+               ' (was ', OLD.status, ')'));
+END$$
+
+-- ASSIGNMENTS
+CREATE TRIGGER trg_assignments_insert AFTER INSERT ON Assignments FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('INSERT', 'Assignments', NEW.assignment_id,
+        CONCAT('Created: "', NEW.title, '" for course_id=', NEW.course_id,
+               ' | due=', IFNULL(NEW.due_date, 'N/A')));
+END$$
+
+CREATE TRIGGER trg_assignments_update AFTER UPDATE ON Assignments FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('UPDATE', 'Assignments', NEW.assignment_id,
+        CONCAT('Updated: "', NEW.title, '" | max_score=', NEW.max_score));
+END$$
+
+CREATE TRIGGER trg_assignments_delete AFTER DELETE ON Assignments FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('DELETE', 'Assignments', OLD.assignment_id,
+        CONCAT('Deleted: "', OLD.title, '" from course_id=', OLD.course_id));
+END$$
+
+-- GRADES
+CREATE TRIGGER trg_grades_insert AFTER INSERT ON Grades FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('INSERT', 'Grades', NEW.grade_id,
+        CONCAT('Grade entered: student_id=', NEW.student_id,
+               ' | assignment_id=', NEW.assignment_id,
+               ' | score=', NEW.score));
+END$$
+
+CREATE TRIGGER trg_grades_update AFTER UPDATE ON Grades FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('UPDATE', 'Grades', NEW.grade_id,
+        CONCAT('Updated grade_id=', NEW.grade_id,
+               ' | score: ', OLD.score, ' -> ', NEW.score));
+END$$
+
+CREATE TRIGGER trg_grades_delete AFTER DELETE ON Grades FOR EACH ROW BEGIN
+    INSERT INTO audit_log (action, table_name, record_id, summary)
+    VALUES ('DELETE', 'Grades', OLD.grade_id,
+        CONCAT('Deleted grade: student_id=', OLD.student_id,
+               ' | assignment_id=', OLD.assignment_id,
+               ' | score was ', OLD.score));
+END$$
+
+DELIMITER ;
